@@ -1,63 +1,50 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLIT CATCHER Mini App</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: var(--tg-theme-bg-color, #17212b);
-            color: var(--tg-theme-text-color, #ffffff);
-            text-align: center;
-            padding: 20px;
-            margin: 0;
-        }
-        h1 { color: #f1c40f; }
-        .btn {
-            display: block;
-            width: 80%;
-            margin: 15px auto;
-            padding: 15px;
-            font-size: 16px;
-            font-weight: bold;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-        }
-        .btn-casino { background-color: #e74c3c; }
-        .btn-harem { background-color: #9b59b6; }
-        .btn-daily { background-color: #2ecc71; }
-        .btn-info { background-color: #3498db; }
-        .footer { margin-top: 40px; font-size: 12px; color: gray; }
-    </style>
-</head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>FLIT Catcher</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{color-scheme:dark;--bg:#10131c;--panel:#1b2030;--muted:#9ca8bf;--accent:#8d7cff;--line:#30384d}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#f4f5fb;font:15px system-ui,-apple-system,sans-serif}
+header{padding:20px 16px 12px;background:linear-gradient(135deg,#29234b,#17243a)}
+h1{font-size:22px;margin:0 0 5px}.sub{color:#c3c8db;font-size:12px}
+.wallet{display:flex;gap:8px;margin-top:14px}.pill{background:#ffffff18;border:1px solid #ffffff20;border-radius:12px;padding:9px 12px;font-weight:700}
+nav{display:flex;gap:7px;padding:12px;overflow:auto;position:sticky;top:0;background:#10131c;z-index:2}
+nav button{border:1px solid var(--line);background:var(--panel);color:#cbd2e4;border-radius:20px;padding:9px 13px;white-space:nowrap}
+nav button.active{background:var(--accent);color:white;border-color:var(--accent)}
+main{padding:4px 12px 30px}.status{padding:12px;color:var(--muted);text-align:center}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:12px;min-width:0}
+.card h3{font-size:14px;margin:0 0 5px;overflow-wrap:anywhere}.muted{color:var(--muted);font-size:12px;line-height:1.5}
+.price{font-weight:800;margin:9px 0;color:#e7d9a7}.action{width:100%;border:0;border-radius:10px;padding:10px;background:var(--accent);color:white;font-weight:700;margin-top:9px}
+input{width:100%;background:#101522;color:white;border:1px solid var(--line);border-radius:9px;padding:10px;margin-top:7px}
+.section-title{font-size:17px;margin:10px 2px 12px}.empty{padding:28px;text-align:center;color:var(--muted);background:var(--panel);border-radius:14px}
+.note{background:#29253a;border:1px solid #544a80;padding:12px;border-radius:12px;color:#d8d2ff;font-size:13px;line-height:1.5}
+</style></head>
 <body>
-
-    <h1>🎮 FLIT CATCHER</h1>
-    <p>မင်္ဂလာပါ <span id="user-name">Player</span>!</p>
-
-    <button class="btn btn-casino" onclick="sendAction('casino')">🎰 Casino ကစားမယ်</button>
-    <button class="btn btn-harem" onclick="sendAction('harem')">🎴 ငါ့ရဲ့ Harem ကြည့်မယ်</button>
-    <button class="btn btn-daily" onclick="sendAction('daily')">🎁 Daily ဆုယူမယ်</button>
-    <button class="btn btn-info" onclick="sendAction('profile')">👤 Profile ကြည့်မယ်</button>
-
-    <div class="footer">Powered by Telegram Mini Apps</div>
-
-    <script>
-        let tg = window.Telegram.WebApp;
-        tg.expand();
-
-        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            document.getElementById('user-name').innerText = tg.initDataUnsafe.user.first_name;
-        }
-
-        function sendAction(action) {
-            tg.sendData(action);
-            tg.close();
-        }
-    </script>
-</body>
-</html>
+<header><h1>🎴 FLIT Catcher</h1><div class="sub" id="username">Telegram Mini App</div>
+<div class="wallet"><div class="pill">🪙 <span id="coins">—</span></div><div class="pill">💎 <span id="gems">—</span></div><div class="pill">🎴 <span id="cards">—</span></div></div></header>
+<nav id="tabs">
+<button class="active" data-tab="harem">Harem</button><button data-tab="market">Market</button><button data-tab="auctions">Auction</button><button data-tab="rdb">RDB</button>
+</nav><main><div id="content" class="status">Connecting to Telegram…</div></main>
+<script>
+const tg=window.Telegram?.WebApp; tg?.ready(); tg?.expand();
+const content=document.getElementById('content'); let initData=tg?.initData||''; let active='harem';
+function headers(){return {'Authorization':'tma '+initData,'Content-Type':'application/json'}}
+async function api(path,opts={}){const r=await fetch(path,{...opts,headers:{...headers(),...(opts.headers||{})}});let d={};try{d=await r.json()}catch{}if(!r.ok)throw new Error(d.detail||'Request failed');return d}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function empty(s){content.innerHTML=`<div class="empty">${esc(s)}</div>`}
+async function loadMe(){const d=await api('/api/me');document.getElementById('username').textContent=d.user.first_name||'Player';document.getElementById('coins').textContent=d.coins.toLocaleString();document.getElementById('gems').textContent=d.gems.toLocaleString();document.getElementById('cards').textContent=d.unique_cards}
+async function render(tab){active=tab;document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));content.innerHTML='<div class="status">Loading…</div>';
+try{
+if(tab==='harem'){const d=await api('/api/harem?limit=100');if(!d.items.length)return empty('Your Harem is empty.');content.innerHTML='<h2 class="section-title">Your Harem</h2><div class="grid">'+d.items.map(x=>`<article class="card"><h3>${esc(x.name)} <small>#${x.id}</small></h3><div class="muted">${esc(x.anime)}<br>${esc(x.rarity)} · ×${x.quantity}</div></article>`).join('')+'</div>'}
+if(tab==='market'){const d=await api('/api/market');if(!d.items.length)return empty('No active Market listings.');content.innerHTML='<h2 class="section-title">🛒 Character Market</h2><div class="grid">'+d.items.map(x=>`<article class="card"><h3>${esc(x.name)} <small>#${x.character_id}</small></h3><div class="muted">${esc(x.anime)}<br>${esc(x.rarity)}<br>Seller: ${esc(x.seller_name||x.seller_id)}</div><div class="price">${Number(x.price).toLocaleString()} ${x.currency==='gemstones'?'💎':'🪙'}</div><button class="action" onclick="buy('${esc(x.code)}')">Buy · ${esc(x.code)}</button></article>`).join('')+'</div>'}
+if(tab==='auctions'){const d=await api('/api/auctions');if(!d.items.length)return empty('No active auctions.');content.innerHTML='<h2 class="section-title">🔨 Active Auctions</h2><div class="grid">'+d.items.map(x=>`<article class="card"><h3>${esc(x.name)} <small>#${x.character_id}</small></h3><div class="muted">${esc(x.anime)}<br>${esc(x.rarity)}<br>Ends: ${new Date(x.ends_at*1000).toLocaleString()}</div><div class="price">Current: ${Number(x.highest_bid).toLocaleString()} 🪙</div><input id="bid-${x.auction_id}" type="number" min="${Number(x.highest_bid)+1}" placeholder="Enter higher bid"><button class="action" onclick="bid(${x.auction_id})">Place Bid</button></article>`).join('')+'</div>'}
+if(tab==='rdb'){const d=await api('/api/rdb/info');content.innerHTML='<h2 class="section-title">🎁 Rarity Drop Box</h2><div class="note">'+esc(d.note)+'</div><div class="grid" style="margin-top:12px">'+d.modes.map(x=>`<article class="card"><h3>RDB Mode ${x.id}</h3><div class="muted">${esc(x.range)}</div><div class="price">${Number(x.cost).toLocaleString()} 🪙</div></article>`).join('')+'</div>'}
+}catch(e){empty(e.message)}}
+async function buy(code){if(!confirm('Buy this character listing?'))return;try{const d=await api('/api/market/buy',{method:'POST',body:JSON.stringify({code})});alert(d.message);await loadMe();await render('market')}catch(e){alert(e.message)}}
+async function bid(id){const el=document.getElementById('bid-'+id);const amount=Number(el.value);if(!Number.isSafeInteger(amount)||amount<=0)return alert('Enter a valid whole-number bid.');if(!confirm('Place this coin bid? The current highest bid is reserved.'))return;try{const d=await api('/api/auction/'+id+'/bid',{method:'POST',body:JSON.stringify({amount})});alert(d.message);await loadMe();await render('auctions')}catch(e){alert(e.message)}}
+document.getElementById('tabs').addEventListener('click',e=>{const b=e.target.closest('button[data-tab]');if(b)render(b.dataset.tab)});
+(async()=>{if(!tg||!initData){empty('Please open this page from the FLIT Catcher Telegram bot.');return}try{await loadMe();await render('harem')}catch(e){empty(e.message)}})();
+</script></body></html>
