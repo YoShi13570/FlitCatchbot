@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FLIT CATCHER Mini App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--tg-theme-bg-color, #17212b);
+            color: var(--tg-theme-text-color, #ffffff);
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+        }
+        h1 { color: #f1c40f; }
+        .btn {
+            display: block;
+            width: 80%;
+            margin: 15px auto;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        .btn-casino { background-color: #e74c3c; }
+        .btn-harem { background-color: #9b59b6; }
+        .btn-daily { background-color: #2ecc71; }
+        .btn-info { background-color: #3498db; }
+        .footer { margin-top: 40px; font-size: 12px; color: gray; }
+    </style>
+</head>
+<body>
+
+    <h1>🎮 FLIT CATCHER</h1>
+    <p>မင်္ဂလာပါ <span id="user-name">Player</span>!</p>
+
+    <button class="btn btn-casino" onclick="sendAction('casino')">🎰 Casino ကစားမယ်</button>
+    <button class="btn btn-harem" onclick="sendAction('harem')">🎴 ငါ့ရဲ့ Harem ကြည့်မယ်</button>
+    <button class="btn btn-daily" onclick="sendAction('daily')">🎁 Daily ဆုယူမယ်</button>
+    <button class="btn btn-info" onclick="sendAction('profile')">👤 Profile ကြည့်မယ်</button>
+
+    <div class="footer">Powered by Telegram Mini Apps</div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            document.getElementById('user-name').innerText = tg.initDataUnsafe.user.first_name;
+        }
+
+        function sendAction(action) {
+            tg.sendData(action);
+            tg.close();
+        }
+    </script>
+</body>
+</html>
